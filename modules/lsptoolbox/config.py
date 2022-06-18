@@ -64,12 +64,11 @@ def load_config(project_name,cmd):
     import sys
     import configparser
 
-    # project_name = 'erp-phds-erpdata-middle'
     appRootDir = None
     if getattr(sys, 'frozen', False):
         appRootDir = os.path.dirname(sys.executable)
     elif __file__:
-        appRootDir = os.path.dirname(__file__)
+        appRootDir = os.path.dirname(os.path.realpath(sys.argv[0]))
     if appRootDir is None:
         print('程序运行路径异常,退出程序')
         os._exit(-1)

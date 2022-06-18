@@ -3,17 +3,18 @@ def cmdLineInput(tips='请输入应用启动类型: '):
     import re
     str = input(tips).lower()
     arrays = re.split(r"[ ]+", str)
-    arrays_len = len(arrays)
-    if arrays[arrays_len - 1] == '': arrays_len -= 1
+    if arrays[len(arrays) - 1] == '':
+        del arrays[len(arrays) - 1]
+    if len(arrays) == 0:
+        return None,(),()
     appType = arrays[0]
     params = []
-    for index in range(1, arrays_len):
+    for index in range(1, len(arrays)):
         params.append(arrays[index])
     params = []
-    for index in range(1, arrays_len):
+    for index in range(1, len(arrays)):
         params.append(arrays[index])
-    args = tuple(params)
-    return appType,args
+    return appType,tuple(params),tuple(arrays)
 
 def getNowTimeStr(timeFormat='%Y-%m-%d %H:%M:%S'):
     import datetime
