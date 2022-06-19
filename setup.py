@@ -10,16 +10,15 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setuptools.setup(
     name = "lsptoolbox",
-    version = "0.0.3",
+    version = "0.0.5",
     author = "lee bottle",
     author_email = "793065165@qq.com",
     description="my python project tool box.",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/15608447849/lsp-toolbox",
-    package_dir={"": "modules"},
-    packages=setuptools.find_packages("modules"),
-
+    package_dir={"": "src"},
+    packages=setuptools.find_packages(where="src"),
     classifiers=[
         "Programming Language :: Python :: 3",
         "License :: OSI Approved :: MIT License",
