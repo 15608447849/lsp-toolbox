@@ -60,7 +60,7 @@ class DatabaseClearThread(object):
 
 class DatabaseManagerBean(object):
     '''数据库管理对象'''
-    def __init__(self,databaseType,host,port,username,password,databaseName,databaseClearThread):
+    def __init__(self,databaseClearThread,databaseType,host,port,username,password,databaseName,charset='uft8'):
         if databaseType ==  'mysql' or databaseType == 'clickHouse' or databaseType == 'sqlServer':
             self.flag = "数据库(%s,%s,%s,%s,%s,%s)-%s" \
                         % (databaseType, host, port,username, password,databaseName, datetime.datetime.now().strftime('%Y%m%d%H%M%S'))
@@ -73,6 +73,7 @@ class DatabaseManagerBean(object):
         self.username = username
         self.password = password
         self.databaseName = databaseName
+        self.charset = charset
         self.idleTime = databaseClearThread.idleTime
         # Map<线程,数据库连接对象>
         self._thread_databaseConnect_map = {}
@@ -98,10 +99,11 @@ class DatabaseManagerBean(object):
                 user=self.username,
                 password=self.password,
                 db=self.databaseName,
-                charset='utf8',
                 autocommit=False,
                 read_timeout=self.idleTime,
-                write_timeout=self.idleTime)
+                write_timeout=self.idleTime,
+                charset=self.charset)
+
         if self.databaseType == "clickHouse":
             return clickhouse_driver.connect(
                 host=self.host,
@@ -111,6 +113,7 @@ class DatabaseManagerBean(object):
                 database=self.databaseName,
                 connect_timeout=self.idleTime,
                 compression=False)
+
         if self.databaseType == 'sqlServer':
             return  pymssql.connect(
                 host=self.host,
@@ -118,7 +121,8 @@ class DatabaseManagerBean(object):
                 password=self.password,
                 database=self.databaseName,
                 timeout=self.idleTime,
-                login_timeout=self.idleTime)
+                login_timeout=self.idleTime,
+                charset=self.charset)
         return None
 
     def _getConnectCheckFunc(self):
@@ -251,7 +255,6 @@ class DatabaseManagerBean(object):
                         raise e
 
                 connect.commit()
-                sqlList.clear()
                 return rows
             except Exception as e:
                 traceback.print_exc()
@@ -278,7 +281,6 @@ class DatabaseManagerBean(object):
             cursor = connect.cursor()
             cursor.executemany(sql, paramTupleList)
             connect.commit()
-            paramTupleList.clear()
             return cursor.rowcount
         except Exception as e:
             import traceback

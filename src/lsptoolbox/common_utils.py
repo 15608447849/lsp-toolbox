@@ -1,3 +1,5 @@
+import json
+
 
 def cmdLineInput(tips='请输入应用启动类型: '):
     import re
@@ -210,9 +212,28 @@ def excelToBean(excelPath,dict_convert_head = None,filter_rows = None,filter_row
         traceback.print_exc()
         print('读取excel文件,失败',excelPath,e)
 
-def objToJson(obj,indent=None):
+
+
+class JSONEncoder_DateEncoder(json.JSONEncoder):
+    def default(self, obj):
+        import datetime
+        if isinstance(obj,datetime.datetime):
+            return obj.strftime("%Y-%m-%d %H:%M:%S")
+        elif isinstance(obj, datetime.date):
+            return obj.strftime("%Y-%m-%d")
+        elif isinstance(obj, datetime.time):
+            return obj.strftime("%H:%M:%S")
+        elif isinstance(obj, datetime.timedelta):
+            return str(obj)
+        elif isinstance(obj, bytes):
+            return str(obj.decode('utf-8'))
+        else:
+            return json.JSONEncoder.default(self,obj)
+
+def objToJson(obj,indent=None,CustomJSONEncoder=None):
     import json
-    jsonStr = json.dumps(obj, ensure_ascii=False,indent=indent)
+    if CustomJSONEncoder is None: CustomJSONEncoder = JSONEncoder_DateEncoder
+    jsonStr = json.dumps(obj, ensure_ascii=False,indent=indent , cls=CustomJSONEncoder)
     return jsonStr
 
 def createResult(isSuccess = True, data = None , message = None, toJson = True, error=None):
@@ -514,6 +535,13 @@ def add_round_float(a, b, digit=4):
 
 def sub_round_float(a, b, digit=4):
     return float(decimalRound(sub(a, b), digit))
+
+def amt_divide(amt, num):
+    '''计算金额及除不尽的余数'''
+    if float(amt) <= 0 or int(num) <= 0: return 0.0, 0.0
+    uprice = div_round(amt, num)
+    indiv = sub(amt, mut(uprice, num))
+    return uprice, indiv
 
 def windows_print_file(fp,printer):
     try:

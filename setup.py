@@ -5,12 +5,15 @@ import setuptools
 # python -m build
 # python  -m twine upload --repository pypi dist/*
 
+# 账号: leebottle
+# 密码: Lzp123456.0
+
 with open("README.md", "r", encoding="utf-8") as fh:
     long_description = fh.read()
 
 setuptools.setup(
     name = "lsptoolbox",
-    version = "0.0.5",
+    version = "0.0.9",
     author = "lee bottle",
     author_email = "793065165@qq.com",
     description="my python project tool box.",

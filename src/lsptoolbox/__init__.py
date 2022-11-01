@@ -1,15 +1,17 @@
 
-from lsptoolbox.database_class_define import DatabaseConnectBean,DatabaseClearThread,DatabaseManagerBean
+# print(r'''
+# .__                             __                .__ ___.
+# |  |   ____________           _/  |_  ____   ____ |  |\_ |__   _______  ___
+# |  |  /  ___/\____ \   ______ \   __\/  _ \ /  _ \|  | | __ \ /  _ \  \/  /
+# |  |__\___ \ |  |_> > /_____/  |  | (  <_> |  <_> )  |_| \_\ (  <_> >    <
+# |____/____  >|   __/           |__|  \____/ \____/|____/___  /\____/__/\_ \
+#           \/ |__|                                          \/            \/
+# ''')
 
+import sys
+from lsptoolbox.database_class_define import DatabaseClearThread, DatabaseManagerBean
 
-print(r'''
-.__                             __                .__ ___.                 
-|  |   ____________           _/  |_  ____   ____ |  |\_ |__   _______  ___
-|  |  /  ___/\____ \   ______ \   __\/  _ \ /  _ \|  | | __ \ /  _ \  \/  /
-|  |__\___ \ |  |_> > /_____/  |  | (  <_> |  <_> )  |_| \_\ (  <_> >    < 
-|____/____  >|   __/           |__|  \____/ \____/|____/___  /\____/__/\_ \
-          \/ |__|                                          \/            \/
-''')
+print('thanks for using LSP tool box ,my phone is 15608447849 , sys.argv = ', sys.argv)
 
 _db_mng_map = {}
 
@@ -31,20 +33,26 @@ def setting_database(database_obj):
 
 
 def load_database_config(config):
-
     db_clear_thread = DatabaseClearThread()
-    # print('连接检测线程',db_clear_thread)
+    print('加载数据库, 连接池空闲检测线程 ',db_clear_thread)
     for session in  config.sections():
         if session.startswith('dbload::'):
             mngName = session.replace('dbload::','',1)
 
-            databaseConnectBean = DatabaseManagerBean(config.get(session, 'dbtype'),
+            try:
+                charset = config.get(session, 'charset')
+            except:
+                charset = 'utf8'
+
+            databaseConnectBean = DatabaseManagerBean( db_clear_thread,
+                                                       config.get(session, 'dbtype'),
                                                        config.get(session, 'host'),
                                                        config.get(session, 'port'),
                                                        config.get(session, 'username'),
                                                        config.get(session, 'password'),
                                                        config.get(session, 'database'),
-                                                       db_clear_thread)
+                                                       charset
+                                                       )
             setting_database(databaseConnectBean)
             _db_mng_map[mngName] = databaseConnectBean
             print("加载数据库管理 %s,%s" % (mngName, str(_db_mng_map[mngName])))
@@ -57,7 +65,7 @@ def getDatabaseOperation(databaseName):
 
 class CustomStdout:
     def __init__(self,appRootDir,cmd,recode=0):
-        import sys
+
         self.console = sys.stdout
         self.error = sys.stderr
         sys.stdout = self
